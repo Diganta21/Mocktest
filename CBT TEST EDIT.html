@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Live CBT Examination</title>
+<style>
+  :root {
+    --bg-page: #f1f4f9;
+    --card-bg: #ffffff;
+    --text-main: #182230;
+    --text-muted: #5c6b84;
+    --border-color: #cbd5e1;
+    --input-bg: #ffffff;
+    --subtle-bg: #f8fafc;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --success: #16a34a;
+    --success-bg: #ecfdf5;
+    --success-border: #86efac;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --danger-border: #fca5a5;
+    --tag-bg: #edf2f7;
+    --tag-color: #475569;
+    --shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+
+    /* CBT Palette Specific Tokens */
+    --cbt-navy: #111827;
+    --cbt-navy-btn: #0f172a;
+    --cbt-border: #e2e8f0;
+    --cbt-answered: #10b981;
+    --cbt-marked: #8b5cf6;
+    --cbt-marked-ans: #8b5cf6;
+    --cbt-not-ans: #ef4444;
+    --cbt-not-visited: #ffffff;
+  }
+
+  body.dark-theme {
+    --bg-page: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --input-bg: #0f172a;
+    --subtle-bg: #162032;
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --success: #4ade80;
+    --success-bg: rgba(34, 197, 94, 0.15);
+    --success-border: #166534;
+    --danger: #f87171;
+    --danger-bg: rgba(239, 68, 68, 0.15);
+    --danger-border: #991b1b;
+    --tag-bg: #334155;
+    --tag-color: #cbd5e1;
+    --shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+
+    --cbt-navy: #090d16;
+    --cbt-navy-btn: #1e293b;
+    --cbt-border: #334155;
+    --cbt-not-visited: #1e293b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    padding: 12px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .container {
+    max-width: 1040px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  h1 { font-size: clamp(20px, 3.5vw, 26px); font-weight: 800; }
+  h2 { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+  h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+
+  .header-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge-offline {
+    background: #dcfce7;
+    color: #15803d;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+  }
+  body.dark-theme .badge-offline {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+  }
+
+  .theme-toggle-btn {
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--subtle-bg);
+    color: var(--text-main);
+    cursor: pointer;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 14px;
+  }
+
+  button, .btn-link {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--subtle-bg);
+    color: var(--text-main);
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    touch-action: manipulation;
+  }
+
+  button:hover, .btn-link:hover { background: #e2e8f0; }
+  body.dark-theme button:hover, body.dark-theme .btn-link:hover { background: #334155; }
+
+  button.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+  }
+  button.primary:hover { background: var(--primary-hover); }
+
+  button.danger {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #991b1b;
+  }
+  body.dark-theme button.danger {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #7f1d1d;
+    color: #fca5a5;
+  }
+  button.danger:hover { background: #fecaca; }
+
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .hidden { display: none !important; }
+  .hint-text { font-size: 13px; color: var(--text-muted); }
+
+  .hub-hero-card {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(59, 130, 246, 0.02) 100%);
+    border: 1.5px solid rgba(37, 99, 235, 0.25);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  body.dark-theme .hub-hero-card {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.16) 0%, rgba(17, 24, 39, 0.6) 100%);
+    border-color: rgba(59, 130, 246, 0.35);
+  }
+  .hub-hero-info h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 3px;
+  }
+  .hub-hero-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  body.dark-theme .hub-hero-badge {
+    background: #1e3a8a;
+    color: #bfdbfe;
+  }
+
+  .portal-card {
+    max-width: 680px;
+    margin: 20px auto;
+  }
+  .instructions-box {
+    background: var(--subtle-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .instructions-box ul {
+    padding-left: 20px;
+    margin-top: 8px;
+  }
+  .instructions-box li {
+    margin-bottom: 8px;
+  }
+
+  .portal-nav-row {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 20px !important;
+    width: 100% !important;
+  }
+  .portal-nav-row button {
+    flex: 1 1 0;
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 11px 16px;
+  }
+
+  .pro-panel {
+    background: var(--subtle-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 14px;
+  }
+  .pro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  /* CBT Layout */
+  #examSection {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
+  }
+
+  .cbt-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cbt-top-header {
+    padding: 12px 16px 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+    flex-shrink: 0;
+  }
+  .cbt-time-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .cbt-clock-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .cbt-digit-box {
+    width: 28px;
+    height: 32px;
+    background: #334155;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 16px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
+  }
+  body.dark-theme .cbt-digit-box {
+    background: #1e293b;
+    border: 1px solid #475569;
+  }
+  .cbt-colon {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-muted);
+    margin: 0 2px;
+  }
+  .cbt-fs-btn {
+    margin-top: 8px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-main);
+    cursor: pointer;
+  }
+
+  .cbt-workspace {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    width: 100%;
+    min-height: 520px;
+  }
+
+  .cbt-desktop-left {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--card-bg);
+  }
+
+  .cbt-sub-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+    flex-shrink: 0;
+  }
+  .cbt-palette-toggle-btn {
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  body.dark-theme .cbt-palette-toggle-btn {
+    background: #1e293b;
+    border: 1px solid #334155;
+  }
+  .cbt-marks-indicator {
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .mark-pos { color: #16a34a; }
+  .mark-neg { color: #dc2626; margin-left: 6px; }
+
+  .cbt-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+    flex-shrink: 0;
+  }
+  .cbt-q-badge-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cbt-q-num-pill {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 6px;
+  }
+  body.dark-theme .cbt-q-num-pill {
+    background: #1e3a8a;
+    color: #93c5fd;
+    border-color: #2563eb;
+  }
+  .cbt-q-stopwatch {
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  body.dark-theme .cbt-q-stopwatch { color: #94a3b8; }
+
+  .cbt-action-btns-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-cbt {
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 16px;
+    min-height: 42px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+  }
+  .btn-cbt-clear {
+    border-color: #fca5a5;
+    background: #fff;
+    color: #dc2626;
+  }
+  body.dark-theme .btn-cbt-clear {
+    background: #1e293b;
+    border-color: #ef4444;
+    color: #f87171;
+  }
+  .btn-cbt-clear:hover { background: #fee2e2; }
+
+  .btn-cbt-mark {
+    border-color: #93c5fd;
+    background: #fff;
+    color: #2563eb;
+  }
+  body.dark-theme .btn-cbt-mark {
+    background: #1e293b;
+    border-color: #3b82f6;
+    color: #60a5fa;
+  }
+  .btn-cbt-mark:hover { background: #eff6ff; }
+
+  .btn-cbt-save-next {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+  }
+  body.dark-theme .btn-cbt-save-next {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+  .btn-cbt-save-next:hover { opacity: 0.9; }
+
+  .cbt-question-content {
+    flex: 1 1 auto;
+    padding: 20px 16px;
+    overflow-y: auto;
+  }
+  .cbt-question-title {
+    font-size: clamp(16px, 2.2vw, 19px);
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 20px;
+    color: var(--text-main);
+  }
+
+  .cbt-choices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .cbt-choice-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    user-select: none;
+    color: var(--text-main);
+  }
+  .cbt-choice-card:hover {
+    border-color: #94a3b8;
+    background: var(--subtle-bg);
+  }
+  .cbt-choice-card.selected {
+    border-color: #2563eb;
+    background: #f0f7ff;
+  }
+  body.dark-theme .cbt-choice-card.selected {
+    border-color: #3b82f6;
+    background: rgba(37, 99, 235, 0.18);
+  }
+
+  .cbt-radio-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+  .cbt-choice-card.selected .cbt-radio-circle {
+    border-color: #2563eb;
+  }
+  .cbt-radio-inner {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #2563eb;
+    display: none;
+  }
+  .cbt-choice-card.selected .cbt-radio-inner {
+    display: block;
+  }
+  .cbt-choice-text {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .cbt-choice-prefix {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+
+  .cbt-bottom-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-color);
+    background: var(--card-bg);
+    flex-shrink: 0;
+  }
+
+  .cbt-palette-drawer {
+    background: #f8fafc;
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  body.dark-theme .cbt-palette-drawer {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  .drawer-profile-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+    flex-shrink: 0;
+  }
+  .drawer-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .drawer-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .drawer-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+  .drawer-close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+  }
+
+  .drawer-legend-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+    flex-shrink: 0;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .badge-icon {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .badge-answered {
+    background: #10b981 !important;
+    color: #ffffff !important;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 50% 100%, 0% 70%);
+    border-radius: 3px 3px 0 0;
+    border: none !important;
+    padding-bottom: 5px !important;
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .badge-marked {
+    background: #8b5cf6 !important;
+    color: #ffffff !important;
+    border-radius: 50% !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+  .badge-not-visited {
+    background: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 1.5px solid var(--border-color) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 0 !important;
+  }
+  body.dark-theme .badge-not-visited {
+    background: #1e293b !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+  }
+  .badge-marked-ans {
+    background: #8b5cf6 !important;
+    color: #ffffff !important;
+    border-radius: 50% !important;
+    border: none !important;
+    position: relative;
+    padding: 0 !important;
+  }
+  .badge-marked-ans::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border: 1.5px solid #ffffff;
+    border-radius: 50%;
+  }
+  .badge-not-ans {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 50% 100%, 0% 70%);
+    border-radius: 3px 3px 0 0;
+    border: none !important;
+    padding-bottom: 5px !important;
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .palette-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--card-bg);
+    flex-shrink: 0;
+  }
+  .pal-chip {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--subtle-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .pal-chip.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+  }
+
+  .drawer-palette-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 14px 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .cbt-grid-5 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    justify-items: center;
+    align-items: center;
+  }
+
+  .cbt-pal-item {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    border: 1.5px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-main);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: transform 0.1s ease, border-color 0.15s ease;
+    user-select: none;
+    padding: 0;
+  }
+  body.dark-theme .cbt-pal-item {
+    background: #1e293b;
+    border-color: #475569;
+    color: #f1f5f9;
+  }
+  .cbt-pal-item:active { transform: scale(0.92); }
+  .cbt-pal-item.is-current {
+    outline: 2px solid #2563eb !important;
+    outline-offset: 2px;
+  }
+
+  .drawer-footer {
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+  .drawer-submit-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    background: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  }
+  .drawer-submit-btn:hover { background: #b91c1c; }
+
+  .cbt-drawer-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 998;
+  }
+
+  .score-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .stat-tile {
+    background: var(--subtle-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-tile .big-number {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-main);
+    display: block;
+  }
+  .stat-tile .sub-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .review-entry {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: var(--card-bg);
+  }
+  .review-entry.review-correct { border-left: 5px solid var(--success); }
+  .review-entry.review-wrong { border-left: 5px solid var(--danger); }
+  .review-entry.review-unanswered { border-left: 5px solid #94a3b8; }
+
+  .solution-filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .sol-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--subtle-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .sol-tab.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+  }
+
+  @media (min-width: 992px) {
+    #examSection .cbt-container {
+      height: calc(100vh - 24px);
+      max-height: 900px;
+    }
+    .cbt-workspace {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .cbt-desktop-left {
+      flex: 1 1 65%;
+      border-right: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+    .cbt-palette-drawer {
+      flex: 0 0 340px;
+      width: 340px;
+      position: static !important;
+      transform: none !important;
+      box-shadow: none !important;
+      height: 100% !important;
+      max-height: 100% !important;
+    }
+    .drawer-close-btn { display: none !important; }
+    .cbt-palette-toggle-btn { display: none !important; }
+    .cbt-drawer-backdrop { display: none !important; }
+  }
+
+  @media (max-width: 991px) {
+    .cbt-palette-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 86vw;
+      max-width: 360px;
+      height: 100vh;
+      height: 100dvh;
+      max-height: 100dvh;
+      z-index: 999;
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -4px 0 24px rgba(0,0,0,0.25);
+    }
+    .cbt-palette-drawer.is-open {
+      transform: translateX(0);
+    }
+    .cbt-drawer-backdrop.is-open {
+      display: block;
+    }
+    .cbt-workspace {
+      min-height: 480px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 6px; }
+    .card { padding: 14px; }
+    .cbt-top-header { padding: 8px 10px; }
+    .cbt-digit-box { width: 24px; height: 28px; font-size: 14px; }
+    .cbt-colon { font-size: 14px; margin: 0 1px; }
+    
+    .cbt-actions-bar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 10px 12px;
+    }
+    .cbt-q-badge-info {
+      justify-content: space-between;
+      width: 100%;
+    }
+    .cbt-action-btns-group {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1.1fr;
+      gap: 6px;
+      width: 100%;
+    }
+    .btn-cbt {
+      padding: 10px 4px;
+      font-size: 12px;
+      text-align: center;
+      justify-content: center;
+      min-height: 44px;
+      white-space: nowrap;
+    }
+    .cbt-question-content { padding: 14px 12px; }
+
+    .portal-nav-row {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 8px !important;
+    }
+    .portal-nav-row button {
+      padding: 10px 8px !important;
+      font-size: 12.5px !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- =========================================================
+       PAGE 1: OFFICIAL INSTRUCTIONS & DECLARATION (NEW START)
+       ========================================================= -->
+  <section class="card portal-card" id="pageInstructions">
+    <div class="header-bar">
+      <div>
+        <h2>Standard Examination Instructions</h2>
+        <p class="hint-text">Please read the following guidelines carefully before starting.</p>
+      </div>
+      <div class="header-badges">
+        <button class="theme-toggle-btn" id="themeToggleBtn">🌙 Dark Mode</button>
+      </div>
+    </div>
+
+    <div class="instructions-box">
+      <b>Color Scheme of Question Palette:</b>
+      <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; margin: 12px 0;">
+        <div class="legend-item"><span class="badge-icon badge-answered">1</span> Answered</div>
+        <div class="legend-item"><span class="badge-icon badge-marked">2</span> Marked for Review</div>
+        <div class="legend-item"><span class="badge-icon badge-not-visited">3</span> Not Visited</div>
+        <div class="legend-item"><span class="badge-icon badge-marked-ans">4</span> Marked & Answered</div>
+      </div>
+      <ul>
+        <li>The clock in the top center shows the remaining test duration. When the countdown reaches zero, your test will auto-submit.</li>
+        <li>Click <b>Save & Next</b> to save your choice and proceed to the next question.</li>
+        <li>Click <b>Mark & Save</b> to flag questions you want to review later.</li>
+        <li>Click <b>Clear Response</b> to deselect your active choice.</li>
+      </ul>
+    </div>
+
+    <div style="margin: 18px 0; display:flex; align-items:flex-start; gap:10px;">
+      <input type="checkbox" id="chkDeclaration" style="width:18px; height:18px; margin-top:2px; cursor:pointer;">
+      <label for="chkDeclaration" style="font-size:13px; font-weight:600; cursor:pointer;">
+        I declare that I am the genuine candidate. I have read and understood all the examination rules and agree to adhere to standard CBT exam ethics.
+      </label>
+    </div>
+
+    <div class="portal-nav-row">
+      <button class="primary" id="launchExamBtn" disabled style="width: 100%;">Start Quiz Now ▶</button>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       PAGE 2: LIVE CBT TERMINAL INTERFACE
+       ========================================================= -->
+  <section class="hidden" id="examSection">
+    <div class="cbt-container" id="cbtExamContainer">
+
+      <!-- Top Flip Timer Header -->
+      <div class="cbt-top-header">
+        <div class="cbt-time-label">TIME LEFT</div>
+        <div class="cbt-clock-display">
+          <div class="cbt-digit-box" id="tH1">0</div>
+          <div class="cbt-digit-box" id="tH2">0</div>
+          <span class="cbt-colon">:</span>
+          <div class="cbt-digit-box" id="tM1">3</div>
+          <div class="cbt-digit-box" id="tM2">9</div>
+          <span class="cbt-colon">:</span>
+          <div class="cbt-digit-box" id="tS1">4</div>
+          <div class="cbt-digit-box" id="tS2">5</div>
+        </div>
+        <div>
+          <button class="cbt-fs-btn" id="cbtFullscreenToggle">Fullscreen</button>
+        </div>
+      </div>
+
+      <!-- Main Desktop Workspace -->
+      <div class="cbt-workspace">
+        <div class="cbt-drawer-backdrop" id="drawerBackdrop"></div>
+
+        <!-- Left Question Column -->
+        <div class="cbt-desktop-left">
+
+          <!-- Sub Header: Palette Trigger & Marks -->
+          <div class="cbt-sub-header">
+            <button class="cbt-palette-toggle-btn" id="openMobilePaletteBtn">
+              ☰ Palette
+            </button>
+            <div class="cbt-marks-indicator">
+              <span class="mark-pos" id="liveMarkPos">+1.00</span>
+              <span class="mark-neg" id="liveMarkNeg">-0.33</span>
+            </div>
+          </div>
+
+          <!-- Action Bar -->
+          <div class="cbt-actions-bar">
+            <div class="cbt-q-badge-info">
+              <span class="cbt-q-num-pill" id="cbtBadgeNo">No. 1</span>
+              <span class="cbt-q-stopwatch">⏱ <span id="cbtQuestionTimer">00:00</span></span>
+            </div>
+            <div class="cbt-action-btns-group">
+              <button class="btn-cbt btn-cbt-clear" id="cbtClearBtn">Clear Response</button>
+              <button class="btn-cbt btn-cbt-mark" id="cbtMarkBtn">Mark & Save</button>
+              <button class="btn-cbt btn-cbt-save-next" id="cbtSaveNextBtn">Save & Next</button>
+            </div>
+          </div>
+
+          <!-- Question Content & Choices -->
+          <div class="cbt-question-content">
+            <h2 class="cbt-question-title" id="cbtQuestionTitle">Question Text</h2>
+            <div class="cbt-choices-list" id="cbtChoicesContainer"></div>
+          </div>
+
+          <!-- Bottom Prev / Next Nav -->
+          <div class="cbt-bottom-bar">
+            <button id="cbtPrevBtn">← Previous</button>
+            <button id="cbtSubmitBottomBtn" style="color:var(--danger); border-color:var(--danger-border); background:var(--danger-bg);">Submit Test</button>
+            <button class="primary" id="cbtNextBtn">Next →</button>
+          </div>
+        </div>
+
+        <!-- Right Side Palette Drawer -->
+        <div class="cbt-palette-drawer" id="cbtPaletteDrawer">
+
+          <!-- Drawer Top: Candidate Profile -->
+          <div class="drawer-profile-bar">
+            <div class="drawer-user-info">
+              <div class="drawer-avatar" id="avatarInitial">C</div>
+              <div class="drawer-name" id="avatarName">Candidate</div>
+            </div>
+            <button class="drawer-close-btn" id="closeMobilePaletteBtn">✕</button>
+          </div>
+
+          <!-- 4-Stat Real-Time Legend Grid -->
+          <div class="drawer-legend-grid">
+            <div class="legend-item">
+              <span class="badge-icon badge-answered" id="statBadgeAnswered">0</span>
+              <span>Answered</span>
+            </div>
+            <div class="legend-item">
+              <span class="badge-icon badge-marked" id="statBadgeMarked">0</span>
+              <span>Marked</span>
+            </div>
+            <div class="legend-item">
+              <span class="badge-icon badge-not-visited" id="statBadgeNotVisited">0</span>
+              <span>Not Visited</span>
+            </div>
+            <div class="legend-item">
+              <span class="badge-icon badge-marked-ans" id="statBadgeMarkedAns">0</span>
+              <span>Marked & Ans</span>
+            </div>
+          </div>
+
+          <!-- Quick Palette Filter Chips -->
+          <div class="palette-chips">
+            <span class="pal-chip active" data-filter="all">All</span>
+            <span class="pal-chip" data-filter="answered">Answered</span>
+            <span class="pal-chip" data-filter="marked">Marked</span>
+            <span class="pal-chip" data-filter="not_visited">Not Visited</span>
+          </div>
+
+          <!-- 5-Column Question Grid -->
+          <div class="drawer-palette-scroll">
+            <div class="cbt-grid-5" id="cbtPaletteGrid"></div>
+          </div>
+
+          <!-- Pinned Drawer Footer -->
+          <div class="drawer-footer">
+            <button class="drawer-submit-btn" id="drawerSubmitExamBtn">Submit Exam</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       PAGE 3: SCORECARD & PERFORMANCE DASHBOARD
+       ========================================================= -->
+  <section class="card hidden" id="pageScorecard">
+    <div class="header-bar">
+      <div>
+        <h2>Examination Scorecard</h2>
+        <p class="hint-text">Official result and candidate performance breakdown.</p>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="openSolutionsBtn">📖 View Detailed Solutions</button>
+        <button id="retakeExamBtn">🔄 Retake Exam</button>
+      </div>
+    </div>
+
+    <!-- Candidate Card Header -->
+    <div class="hub-hero-card" style="margin-top:12px;">
+      <div class="hub-hero-info">
+        <h3 id="resCandidateName">Candidate: Diganta</h3>
+        <p class="hint-text" id="resExamTitle">Test: Constitutional Law & Fundamental Rights</p>
+      </div>
+      <div style="text-align:right;">
+        <span class="hub-hero-badge" id="resTotalScoreBadge">Score: 0 / 0</span>
+      </div>
+    </div>
+
+    <!-- Tiles -->
+    <div class="score-cards">
+      <div class="stat-tile">
+        <span class="big-number" id="resScoreVal">0.00</span>
+        <span class="sub-title">Total Marks</span>
+      </div>
+      <div class="stat-tile">
+        <span class="big-number" id="resAccuracyVal">0%</span>
+        <span class="sub-title">Accuracy</span>
+      </div>
+      <div class="stat-tile">
+        <span class="big-number" id="resAttemptedVal">0</span>
+        <span class="sub-title">Attempted</span>
+      </div>
+      <div class="stat-tile">
+        <span class="big-number" id="resUnansweredVal">0</span>
+        <span class="sub-title">Unanswered</span>
+      </div>
+    </div>
+
+    <!-- Detailed Analysis Box -->
+    <div class="pro-panel">
+      <h3>Detailed Metrics</h3>
+      <div class="pro-grid" id="analysisMetricsGrid" style="margin-top:10px;"></div>
+      <div style="margin-top:16px;">
+        <b>Subject-Wise Performance:</b>
+        <div id="resSubjectList" style="margin-top:8px;"></div>
+      </div>
+      <div class="btn-row" style="margin-top:16px;">
+        <button id="downloadCsvBtn">📥 Download Performance CSV</button>
+        <button id="printScoreBtn">🖨 Print Scorecard</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       PAGE 4: DETAILED SOLUTIONS & REVIEW PORTAL
+       ========================================================= -->
+  <section class="card hidden" id="pageSolutions">
+    <div class="header-bar">
+      <div>
+        <h2>Question Solutions & Explanations</h2>
+        <p class="hint-text">Review your answers, correct keys, and topic explanations.</p>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="backToScorecardBtn">← Back to Scorecard</button>
+      </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="solution-filter-tabs">
+      <button class="sol-tab active" data-sol-filter="all">All Questions</button>
+      <button class="sol-tab" data-sol-filter="wrong">Incorrect (✗)</button>
+      <button class="sol-tab" data-sol-filter="correct">Correct (✓)</button>
+      <button class="sol-tab" data-sol-filter="skipped">Skipped (-)</button>
+    </div>
+
+    <!-- Question Solution List -->
+    <div id="solutionEntriesContainer"></div>
+  </section>
+
+</div>
+
+<script>
+(() => {
+  const LETTERS = ['A', 'B', 'C', 'D'];
+
+  // Global State
+  let questionBank = [];
+  let activeQuestions = [];
+  let userAnswers = []; // null or index (0-3)
+  let questionStatus = []; // 'not_visited', 'not_answered', 'answered', 'marked', 'marked_ans'
+  let questionTimes = []; // elapsed ms per question
+  let currentIndex = 0;
+  let activePalFilter = 'all';
+  let activeSolFilter = 'all';
+
+  // Timers
+  let totalDurationSec = 40 * 60;
+  let remainingSec = 40 * 60;
+  let examTimerInterval = null;
+  let qStopwatchInterval = null;
+  let currentQuestionSec = 0;
+  let examStartedAt = 0;
+
+  // DOM Helpers
+  const el = id => document.getElementById(id);
+
+  // Pages
+  const pageInstructions = el('pageInstructions');
+  const examSection = el('examSection');
+  const pageScorecard = el('pageScorecard');
+  const pageSolutions = el('pageSolutions');
+
+  function showPage(pageEl) {
+    [pageInstructions, examSection, pageScorecard, pageSolutions].forEach(p => p.classList.add('hidden'));
+    pageEl.classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // --- THEME LOGIC ---
+  const themeToggleBtn = el('themeToggleBtn');
+  function applyTheme(isDark) {
+    if (isDark) {
+      document.body.classList.add('dark-theme');
+      themeToggleBtn.textContent = '☀️ Light Mode';
+    } else {
+      document.body.classList.remove('dark-theme');
+      themeToggleBtn.textContent = '🌙 Dark Mode';
+    }
+  }
+  function initTheme() {
+    const saved = localStorage.getItem('self_exam_theme');
+    if (saved === 'dark') applyTheme(true);
+    else if (saved === 'light') applyTheme(false);
+    else applyTheme(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  themeToggleBtn.onclick = () => {
+    const isDark = document.body.classList.contains('dark-theme');
+    applyTheme(!isDark);
+    localStorage.setItem('self_exam_theme', !isDark ? 'dark' : 'light');
+  };
+  initTheme();
+
+  // --- PRE-LOADED QUESTIONS ---
+  const politySample = [
+    ["Which Article allows constitutional remedies for enforcement of Fundamental Rights by courts?", ["Article 226", "Article 300", "Article 32", "Article 44"], "C", "Article 32 gives the right to move the Supreme Court for remedies."],
+    ["Which Fundamental Right cannot be suspended even during a National Emergency?", ["Article 19", "Articles 20 and 21", "Article 14", "Article 25"], "B", "The 44th Amendment Act protected Articles 20 and 21 from suspension."],
+    ["How many Fundamental Freedoms are guaranteed by Article 19 of the Indian Constitution?", ["7 freedoms", "6 freedoms", "5 freedoms", "8 freedoms"], "B", "Originally 7, but right to property was removed by the 44th Amendment, leaving 6."],
+    ["The Directive Principles of State Policy are borrowed from the constitution of which country?", ["USA", "Ireland", "Australia", "Canada"], "B", "The Irish Constitution inspired India's Directive Principles of State Policy."],
+    ["Which Schedule of the Constitution deals with the distribution of seats in the Rajya Sabha?", ["Second Schedule", "Fourth Schedule", "Fifth Schedule", "Seventh Schedule"], "B", "The Fourth Schedule allocates seats in the Council of States (Rajya Sabha)."],
+    ["The Concept of 'A Single Integrated Judiciary' in India was adopted from which act?", ["Government of India Act 1935", "Indian Independence Act 1947", "Charter Act 1853", "Pitt's India Act 1784"], "A", "Government of India Act 1935 provided the framework for the single integrated court system."],
+    ["Which Constitutional Amendment introduced the Anti-Defection Law?", ["42nd Amendment", "44th Amendment", "52nd Amendment", "61st Amendment"], "C", "The 52nd Constitutional Amendment Act of 1985 added the 10th Schedule."]
+  ];
+
+  function escapeHtml(str) {
+    if (!str && str !== 0) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
+  // --- START EXAM LOGIC ---
+  el('chkDeclaration').onchange = (e) => {
+    el('launchExamBtn').disabled = !e.target.checked;
+  };
+
+  el('launchExamBtn').onclick = () => {
+    startExam();
+  };
+
+  function startExam() {
+    activeQuestions = questionBank.map(q => ({ ...q, opts: [...q.opts] }));
+    userAnswers = Array(activeQuestions.length).fill(null);
+    questionStatus = Array(activeQuestions.length).fill('not_visited');
+    questionTimes = Array(activeQuestions.length).fill(0);
+    currentIndex = 0;
+    activePalFilter = 'all';
+
+    const pMark = 1.00;
+    const nMark = 0.33;
+    el('liveMarkPos').textContent = `+${pMark.toFixed(2)}`;
+    el('liveMarkNeg').textContent = `-${nMark.toFixed(2)}`;
+
+    // Set duration to 40 minutes
+    totalDurationSec = 40 * 60;
+    remainingSec = totalDurationSec;
+
+    clearInterval(examTimerInterval);
+    updateFlipClock(remainingSec);
+    examTimerInterval = setInterval(() => {
+      remainingSec--;
+      if (remainingSec <= 0) {
+        clearInterval(examTimerInterval);
+        submitExamAuto();
+      } else {
+        updateFlipClock(remainingSec);
+      }
+    }, 1000);
+
+    currentQuestionSec = 0;
+    clearInterval(qStopwatchInterval);
+    qStopwatchInterval = setInterval(() => {
+      currentQuestionSec++;
+      const mm = String(Math.floor(currentQuestionSec / 60)).padStart(2, '0');
+      const ss = String(currentQuestionSec % 60).padStart(2, '0');
+      el('cbtQuestionTimer').textContent = `${mm}:${ss}`;
+    }, 1000);
+
+    examStartedAt = Date.now();
+    questionStatus[0] = 'not_answered';
+
+    showPage(examSection);
+    renderActiveQuestion();
+    renderPalette();
+  }
+
+  function updateFlipClock(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+
+    const sh = String(h).padStart(2, '0');
+    const sm = String(m).padStart(2, '0');
+    const ss = String(s).padStart(2, '0');
+
+    el('tH1').textContent = sh[0];
+    el('tH2').textContent = sh[1];
+    el('tM1').textContent = sm[0];
+    el('tM2').textContent = sm[1];
+    el('tS1').textContent = ss[0];
+    el('tS2').textContent = ss[1];
+  }
+
+  // --- RENDER LIVE QUESTION ---
+  function renderActiveQuestion() {
+    if (!activeQuestions.length) return;
+    const q = activeQuestions[currentIndex];
+    const selectedAns = userAnswers[currentIndex];
+
+    el('cbtBadgeNo').textContent = `No. ${currentIndex + 1}`;
+    el('cbtQuestionTitle').textContent = q.q;
+
+    currentQuestionSec = Math.round((questionTimes[currentIndex] || 0) / 1000);
+    const mm = String(Math.floor(currentQuestionSec / 60)).padStart(2, '0');
+    const ss = String(currentQuestionSec % 60).padStart(2, '0');
+    el('cbtQuestionTimer').textContent = `${mm}:${ss}`;
+
+    const container = el('cbtChoicesContainer');
+    container.innerHTML = '';
+
+    q.opts.forEach((optText, idx) => {
+      const card = document.createElement('div');
+      card.className = `cbt-choice-card ${selectedAns === idx ? 'selected' : ''}`;
+      card.innerHTML = `
+        <div class="cbt-radio-circle">
+          <div class="cbt-radio-inner"></div>
+        </div>
+        <div class="cbt-choice-text">
+          <span class="cbt-choice-prefix">${LETTERS[idx]}.</span> ${escapeHtml(optText)}
+        </div>
+      `;
+
+      card.onclick = () => {
+        userAnswers[currentIndex] = idx;
+        if (questionStatus[currentIndex] === 'marked' || questionStatus[currentIndex] === 'marked_ans') {
+          questionStatus[currentIndex] = 'marked_ans';
+        } else {
+          questionStatus[currentIndex] = 'answered';
+        }
+        renderActiveQuestion();
+        renderPalette();
+      };
+
+      container.appendChild(card);
+    });
+
+    el('cbtPrevBtn').disabled = currentIndex === 0;
+    el('cbtNextBtn').textContent = currentIndex === activeQuestions.length - 1 ? 'Finish →' : 'Next →';
+    updatePaletteCounters();
+  }
+
+  function recordQuestionTime() {
+    questionTimes[currentIndex] = (questionTimes[currentIndex] || 0) + (currentQuestionSec * 1000);
+    currentQuestionSec = 0;
+  }
+
+  function navigateTo(idx) {
+    if (idx < 0 || idx >= activeQuestions.length) return;
+    recordQuestionTime();
+    currentIndex = idx;
+    if (questionStatus[currentIndex] === 'not_visited') {
+      questionStatus[currentIndex] = 'not_answered';
+    }
+    renderActiveQuestion();
+    renderPalette();
+  }
+
+  el('cbtClearBtn').onclick = () => {
+    userAnswers[currentIndex] = null;
+    questionStatus[currentIndex] = 'not_answered';
+    renderActiveQuestion();
+    renderPalette();
+  };
+
+  el('cbtMarkBtn').onclick = () => {
+    recordQuestionTime();
+    if (userAnswers[currentIndex] !== null) {
+      questionStatus[currentIndex] = 'marked_ans';
+    } else {
+      questionStatus[currentIndex] = 'marked';
+    }
+    if (currentIndex < activeQuestions.length - 1) {
+      navigateTo(currentIndex + 1);
+    } else {
+      renderPalette();
+    }
+  };
+
+  el('cbtSaveNextBtn').onclick = () => {
+    recordQuestionTime();
+    if (userAnswers[currentIndex] !== null) {
+      if (questionStatus[currentIndex] !== 'marked_ans') {
+        questionStatus[currentIndex] = 'answered';
+      }
+    } else {
+      questionStatus[currentIndex] = 'not_answered';
+    }
+    if (currentIndex < activeQuestions.length - 1) {
+      navigateTo(currentIndex + 1);
+    } else {
+      renderPalette();
+      confirmSubmit();
+    }
+  };
+
+  el('cbtPrevBtn').onclick = () => {
+    if (currentIndex > 0) navigateTo(currentIndex - 1);
+  };
+
+  el('cbtNextBtn').onclick = () => {
+    if (currentIndex < activeQuestions.length - 1) {
+      navigateTo(currentIndex + 1);
+    } else {
+      confirmSubmit();
+    }
+  };
+
+  // --- PALETTE DRAWER & COUNTERS ---
+  function updatePaletteCounters() {
+    let answered = 0, marked = 0, notVisited = 0, markedAns = 0;
+    questionStatus.forEach(status => {
+      if (status === 'answered') answered++;
+      else if (status === 'marked') marked++;
+      else if (status === 'marked_ans') markedAns++;
+      else if (status === 'not_visited') notVisited++;
+    });
+
+    el('statBadgeAnswered').textContent = answered;
+    el('statBadgeMarked').textContent = marked;
+    el('statBadgeNotVisited').textContent = notVisited;
+    el('statBadgeMarkedAns').textContent = markedAns;
+  }
+
+  function renderPalette() {
+    updatePaletteCounters();
+    const grid = el('cbtPaletteGrid');
+    grid.innerHTML = '';
+
+    activeQuestions.forEach((q, idx) => {
+      const status = questionStatus[idx];
+
+      if (activePalFilter === 'answered' && status !== 'answered') return;
+      if (activePalFilter === 'marked' && status !== 'marked' && status !== 'marked_ans') return;
+      if (activePalFilter === 'not_visited' && status !== 'not_visited') return;
+
+      const btn = document.createElement('button');
+      btn.className = 'cbt-pal-item';
+      btn.textContent = idx + 1;
+
+      if (idx === currentIndex) {
+        btn.classList.add('is-current');
+      }
+
+      if (status === 'answered') btn.classList.add('badge-answered');
+      else if (status === 'marked') btn.classList.add('badge-marked');
+      else if (status === 'marked_ans') btn.classList.add('badge-marked-ans');
+      else if (status === 'not_answered') btn.classList.add('badge-not-ans');
+      else btn.classList.add('badge-not-visited');
+
+      btn.onclick = () => {
+        navigateTo(idx);
+        if (window.innerWidth < 992) {
+          closeDrawer();
+        }
+      };
+
+      grid.appendChild(btn);
+    });
+  }
+
+  document.querySelectorAll('.pal-chip').forEach(chip => {
+    chip.onclick = () => {
+      document.querySelectorAll('.pal-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activePalFilter = chip.dataset.filter;
+      renderPalette();
+    };
+  });
+
+  const drawer = el('cbtPaletteDrawer');
+  const backdrop = el('drawerBackdrop');
+
+  function openDrawer() {
+    drawer.classList.add('is-open');
+    backdrop.classList.add('is-open');
+  }
+  function closeDrawer() {
+    drawer.classList.remove('is-open');
+    backdrop.classList.remove('is-open');
+  }
+
+  el('openMobilePaletteBtn').onclick = openDrawer;
+  el('closeMobilePaletteBtn').onclick = closeDrawer;
+  backdrop.onclick = closeDrawer;
+
+  el('cbtFullscreenToggle').onclick = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (e) {}
+  };
+
+  // --- SUBMIT EXAM & RESULTS ---
+  function confirmSubmit() {
+    const unans = userAnswers.filter(x => x === null).length;
+    let msg = "Are you sure you want to submit the exam?";
+    if (unans > 0) msg = `You have ${unans} unanswered question(s).\nAre you sure you want to submit now?`;
+    if (confirm(msg)) {
+      submitExam();
+    }
+  }
+
+  function submitExamAuto() {
+    alert("Time is up! Your exam will now be submitted.");
+    submitExam();
+  }
+
+  el('cbtSubmitBottomBtn').onclick = confirmSubmit;
+  el('drawerSubmitExamBtn').onclick = confirmSubmit;
+
+  function submitExam() {
+    recordQuestionTime();
+    clearInterval(examTimerInterval);
+    clearInterval(qStopwatchInterval);
+    closeDrawer();
+
+    const total = activeQuestions.length;
+    let correct = 0, wrong = 0, unattempted = 0;
+    const pMark = 1.00;
+    const nMark = 0.33;
+
+    userAnswers.forEach((ans, i) => {
+      if (ans === null) {
+        unattempted++;
+      } else if (ans === activeQuestions[i].correct) {
+        correct++;
+      } else {
+        wrong++;
+      }
+    });
+
+    const attempted = correct + wrong;
+    const totalScore = (correct * pMark) - (wrong * nMark);
+    const maxScore = total * pMark;
+    const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+    const elapsedSec = Math.round((Date.now() - examStartedAt) / 1000);
+
+    el('resCandidateName').textContent = `Candidate: Candidate`;
+    el('resExamTitle').textContent = `Test: Constitutional Law Mock Exam`;
+    el('resTotalScoreBadge').textContent = `Score: ${totalScore.toFixed(2)} / ${maxScore.toFixed(2)}`;
+
+    el('resScoreVal').textContent = totalScore.toFixed(2);
+    el('resAccuracyVal').textContent = `${accuracy}%`;
+    el('resAttemptedVal').textContent = `${attempted} / ${total}`;
+    el('resUnansweredVal').textContent = unattempted;
+
+    const fmtTime = s => `${Math.floor(s / 60)}m ${s % 60}s`;
+    const avgSec = total > 0 ? Math.round(elapsedSec / total) : 0;
+
+    el('analysisMetricsGrid').innerHTML = `
+      <div class="pro-panel" style="margin:0;">
+        <span class="hint-text">Correct Answers</span>
+        <h3 style="color:var(--success); margin-top:4px;">${correct} (+${(correct * pMark).toFixed(2)})</h3>
+      </div>
+      <div class="pro-panel" style="margin:0;">
+        <span class="hint-text">Negative Deductions</span>
+        <h3 style="color:var(--danger); margin-top:4px;">${wrong} (-${(wrong * nMark).toFixed(2)})</h3>
+      </div>
+      <div class="pro-panel" style="margin:0;">
+        <span class="hint-text">Total Time Spent</span>
+        <h3 style="margin-top:4px;">${fmtTime(elapsedSec)}</h3>
+      </div>
+      <div class="pro-panel" style="margin:0;">
+        <span class="hint-text">Average Pace</span>
+        <h3 style="margin-top:4px;">${avgSec}s / question</h3>
+      </div>
+    `;
+
+    const subjects = {};
+    activeQuestions.forEach((q, i) => {
+      const key = q.subject || 'General Studies';
+      if (!subjects[key]) subjects[key] = { total: 0, correct: 0 };
+      subjects[key].total++;
+      if (userAnswers[i] === q.correct) subjects[key].correct++;
+    });
+
+    el('resSubjectList').innerHTML = Object.entries(subjects).map(([subj, data]) => {
+      const pct = Math.round((data.correct / data.total) * 100);
+      return `
+        <div style="margin-top:8px;">
+          <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700;">
+            <span>${escapeHtml(subj)}</span>
+            <span>${data.correct}/${data.total} (${pct}%)</span>
+          </div>
+          <div style="height:6px; background:var(--border-color); border-radius:99px; overflow:hidden; margin-top:4px;">
+            <div style="height:100%; width:${pct}%; background:#2563eb;"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    renderSolutions();
+    showPage(pageScorecard);
+  }
+
+  // --- SEPARATED SOLUTION REVIEW PORTAL ---
+  function renderSolutions() {
+    const container = el('solutionEntriesContainer');
+    container.innerHTML = '';
+
+    const filtered = activeQuestions.map((q, idx) => ({ q, idx })).filter(({ q, idx }) => {
+      const ans = userAnswers[idx];
+      if (activeSolFilter === 'correct') return ans === q.correct;
+      if (activeSolFilter === 'wrong') return ans !== null && ans !== q.correct;
+      if (activeSolFilter === 'skipped') return ans === null;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div class="hint-text" style="padding:20px; text-align:center;">No questions found for this filter.</div>`;
+      return;
+    }
+
+    container.innerHTML = filtered.map(({ q, idx }) => {
+      const ans = userAnswers[idx];
+      const isUnans = ans === null;
+      const isRight = ans === q.correct;
+
+      let cls = isUnans ? 'review-unanswered' : (isRight ? 'review-correct' : 'review-wrong');
+      let statusBadge = isUnans
+        ? `<b style="color:var(--text-muted);">Unattempted</b>`
+        : (isRight ? `<b style="color:var(--success);">✓ Correct (+${el('liveMarkPos').textContent})</b>` : `<b style="color:var(--danger);">✗ Incorrect (${el('liveMarkNeg').textContent})</b>`);
+
+      return `
+        <div class="review-entry ${cls}">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <strong>Question ${idx + 1}</strong>
+            <span>${statusBadge}</span>
+          </div>
+          <div style="font-weight:600; font-size:15px; margin-bottom:10px;">${escapeHtml(q.q)}</div>
+          <div style="font-size:14px; margin-bottom:4px;">
+            Your Answer: <b>${isUnans ? 'None' : `(${LETTERS[ans]}) ` + escapeHtml(q.opts[ans])}</b>
+          </div>
+          <div style="font-size:14px; color:var(--success);">
+            Correct Answer: <b>(${LETTERS[q.correct]}) ${escapeHtml(q.opts[q.correct])}</b>
+          </div>
+          ${q.explanation ? `
+            <div style="font-size:13px; color:var(--text-muted); margin-top:8px; background:var(--subtle-bg); padding:8px 12px; border-radius:6px; border-left:3px solid #2563eb;">
+              <b>Explanation:</b> ${escapeHtml(q.explanation)}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.querySelectorAll('.sol-tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.sol-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeSolFilter = tab.dataset.solFilter;
+      renderSolutions();
+    };
+  });
+
+  el('openSolutionsBtn').onclick = () => {
+    activeSolFilter = 'all';
+    document.querySelectorAll('.sol-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.sol-tab[data-sol-filter="all"]').classList.add('active');
+    renderSolutions();
+    showPage(pageSolutions);
+  };
+
+  el('backToScorecardBtn').onclick = () => {
+    showPage(pageScorecard);
+  };
+
+  el('retakeExamBtn').onclick = () => {
+    el('chkDeclaration').checked = false;
+    el('launchExamBtn').disabled = true;
+    showPage(pageInstructions);
+  };
+
+  el('downloadCsvBtn').onclick = () => {
+    const rows = [['Question No', 'Question', 'Subject', 'Your Answer', 'Correct Answer', 'Status']];
+    activeQuestions.forEach((q, i) => {
+      const a = userAnswers[i];
+      const status = a === null ? 'Unattempted' : a === q.correct ? 'Correct' : 'Incorrect';
+      rows.push([
+        i + 1,
+        q.q,
+        q.subject || 'General Studies',
+        a === null ? '' : q.opts[a],
+        q.opts[q.correct],
+        status
+      ]);
+    });
+    const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cbt-exam-score-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  el('printScoreBtn').onclick = () => window.print();
+
+  // --- INITIALIZATION ---
+  window.addEventListener('DOMContentLoaded', () => {
+    // Process the hardcoded questions on load
+    questionBank = politySample.map(item => {
+      let key = String(item[2]).trim().toUpperCase();
+      let correctIdx = /^[0-3]$/.test(key) ? parseInt(key, 10) : ['A','B','C','D'].indexOf(key);
+      return {
+        q: item[0],
+        opts: item[1],
+        correct: correctIdx,
+        explanation: item[3] || '',
+        subject: 'Constitutional Law'
+      };
+    });
+
+    // Start directly on the instructions page
+    el('chkDeclaration').checked = false;
+    el('launchExamBtn').disabled = true;
+    showPage(pageInstructions);
+  });
+})();
+</script>
+</body>
+</html>
